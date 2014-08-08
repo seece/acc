@@ -22,7 +22,7 @@
 
 // MACROS ------------------------------------------------------------------
 
-#define VERSION_TEXT "1.54"
+#define VERSION_TEXT "1.54a"
 #define COPYRIGHT_YEARS_TEXT "1995"
 
 // TYPES -------------------------------------------------------------------
@@ -54,6 +54,7 @@ char acs_SourceFileName[MAX_FILE_NAME_LENGTH];
 static int ArgCount;
 static char **ArgVector;
 static char ObjectFileName[MAX_FILE_NAME_LENGTH];
+boolean NoBanner = FALSE;
 
 // CODE --------------------------------------------------------------------
 
@@ -69,8 +70,9 @@ int main(int argc, char **argv)
 
 	ArgCount = argc;
 	ArgVector = argv;
-	DisplayBanner();
 	Init();
+	if (!NoBanner)
+		DisplayBanner();
 	TK_OpenSource(acs_SourceFileName);
 	PC_OpenObject(ObjectFileName, DEFAULT_OBJECT_SIZE, 0);
 	PA_Parse();
@@ -151,8 +153,10 @@ static void Init(void)
 	SY_Init();
 	STR_Init();
 	ProcessArgs();
-	MS_Message(MSG_NORMAL, "Host byte order: %s endian\n",
-		acs_BigEndianHost ? "BIG" : "LITTLE");
+	
+	if (!NoBanner)
+		MS_Message(MSG_NORMAL, "Host byte order: %s endian\n",
+			acs_BigEndianHost ? "BIG" : "LITTLE");
 }
 
 //==========================================================================
@@ -209,6 +213,9 @@ static void ProcessArgs(void)
 					pc_WarnNotHexen = toupper(*text) == 'H';
 					break;
 					
+				case 'N':
+					NoBanner = TRUE;
+					break;
 				default:
 					DisplayUsage();
 					break;
@@ -242,6 +249,7 @@ static void ProcessArgs(void)
 	
 	if(count == 0)
 	{
+		DisplayBanner();
 		DisplayUsage();
 	}
 
@@ -272,6 +280,7 @@ static void DisplayUsage(void)
 	puts("-d[file]   Output debugging information");
 	puts("-h         Create pcode compatible with Hexen and old ZDooms");
 	puts("-hh        Like -h, but use of new features is only a warning");
+	puts("-n         Hide copyright banner");
 	exit(1);
 }
 
